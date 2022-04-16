@@ -7,12 +7,14 @@ contract Group {
     uint public size = 65536;
     uint public current = 0;
     uint scheme1 = 1 ether;
-     struct Grp {
-        uint256 totalDeposits;
-        uint pointer;
-        uint created;
-        address [10] members;
-    }
-    mapping (address => uint) public groupIds;
-    Grp[] public groups = new Grp[](size);
+//      struct Grp {
+//         uint256 totalDeposits;
+//         uint pointer;
+//         uint created;
+//         // mapping (uint=>address) members;
+//         address [10] members;
+//     }
+//     mapping (address => uint) public groupIds;
+//     Grp[] public groups = new Grp[](size);
+
 }

@@ -10,6 +10,8 @@ contract Staking is Group {
     mapping(address => uint256) public depositions;
     uint256 public auctionId;
     mapping(uint256 => address payable) public auctionHistory;
+    uint256 totalDeposits;
+
 
     constructor() {
         owner = msg.sender;
@@ -25,17 +27,17 @@ contract Staking is Group {
 
     function enter() public {
         members.push(payable(msg.sender));
-        allotGroup(msg.sender);
+        // allotGroup(msg.sender);
     }
 
-    function allotGroup(address callee) internal {
-        groups[current].members[(groups[current].pointer)] = callee;
-        groups[current].pointer++;
-        groupIds[callee] = current;
-        if (groups[current].pointer == 10) {
-            current++;
-        }
-    }
+    // function allotGroup(address callee) internal {
+    //     groups[current].members[(groups[current].pointer)] = callee;
+    //     groups[current].pointer++;
+    //     groupIds[callee] = current;
+    //     if (groups[current].pointer == 10) {
+    //         current++;
+    //     }
+    // }
 
     function getMembers() public view returns (address payable[] memory) {
         return members;
@@ -49,12 +51,12 @@ contract Staking is Group {
             revert("you should pay 1 ether");
         }
         depositions[msg.sender] += msg.value;
-        groups[groupIds[msg.sender]].totalDeposits += msg.value;
+        totalDeposits += msg.value;
     }
 
     function rewardWinner(address payable winner) public {
-        winner.transfer(groups[groupIds[winner]].totalDeposits);
-        groups[groupIds[winner]].totalDeposits = 0;
+        winner.transfer(totalDeposits);
+        totalDeposits = 0;
     }
 
     function getAuctionHistory(uint256 _auctionId)
@@ -66,7 +68,7 @@ contract Staking is Group {
     }
 
     function getTotal(uint _groupId) public view returns (uint256) {
-        return groups[_groupId].totalDeposits;
+        return totalDeposits;
     }
 
     modifier onlyOwner() {
