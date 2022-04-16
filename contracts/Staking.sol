@@ -2,18 +2,17 @@
 pragma solidity ^0.8.4;
 
 import "./Group.sol";
+import "hardhat/console.sol";
 
 contract Staking is Group {
     address public owner;
     address payable[] public members;
     mapping(address => uint256) public depositions;
-    uint public auctionId;
-    mapping(uint=>address payable) public auctionHistory;
-    uint public totalDeposits;
+    uint256 public auctionId;
+    mapping(uint256 => address payable) public auctionHistory;
 
     constructor() {
         owner = msg.sender;
-        totalDeposits=0;
     }
 
     // function initGroup(address[10] memory _members) external {
@@ -26,6 +25,16 @@ contract Staking is Group {
 
     function enter() public {
         members.push(payable(msg.sender));
+        allotGroup(msg.sender);
+    }
+
+    function allotGroup(address callee) internal {
+        groups[current].members[(groups[current].pointer)] = callee;
+        groups[current].pointer++;
+        groupIds[callee] = current;
+        if (groups[current].pointer == 10) {
+            current++;
+        }
     }
 
     function getMembers() public view returns (address payable[] memory) {
@@ -33,24 +42,31 @@ contract Staking is Group {
     }
 
     function stake() external payable {
-        if(block.timestamp < end){
+        if (block.timestamp < end) {
             revert("you are late");
         }
+        if (msg.value != scheme1) {
+            revert("you should pay 1 ether");
+        }
         depositions[msg.sender] += msg.value;
-        totalDeposits+=msg.value;
+        groups[groupIds[msg.sender]].totalDeposits += msg.value;
     }
 
     function rewardWinner(address payable winner) public {
-        winner.transfer(totalDeposits);
-        totalDeposits=0;
+        winner.transfer(groups[groupIds[winner]].totalDeposits);
+        groups[groupIds[winner]].totalDeposits = 0;
     }
 
-    function getAuctionHistory(uint _auctionId) public view returns (address payable) {
+    function getAuctionHistory(uint256 _auctionId)
+        public
+        view
+        returns (address payable)
+    {
         return auctionHistory[_auctionId];
     }
 
-    function getTotal() public view returns (uint) {
-        return totalDeposits;
+    function getTotal(uint _groupId) public view returns (uint256) {
+        return groups[_groupId].totalDeposits;
     }
 
     modifier onlyOwner() {
