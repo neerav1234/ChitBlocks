@@ -9,7 +9,7 @@ require('dotenv').config();
 // To export your private key from Metamask, open Metamask and
 // go to Account Details > Export Private Key
 // Be aware of NEVER putting real Ether into testing accounts
-// const ROPSTEN_PRIVATE_KEY = "YOUR ROPSTEN PRIVATE KEY";
+// const RINKEBY_PRIVATE_KEY = "YOUR ROPSTEN PRIVATE KEY";
 
 module.exports = {
   solidity: "0.8.4",

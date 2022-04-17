@@ -22,13 +22,16 @@ contract Auctions {
 
     Staking s;
 
-    constructor(uint256 _biddingTime, address payable _receiver) {
+    constructor(uint256 _biddingTime, address payable _receiver) public payable {
         auctionEndTime = block.timestamp + _biddingTime;
         receiver = _receiver;
+        s = Staking(receiver);
     }
 
     function bid() public payable {
         if (block.timestamp > auctionEndTime) {
+            ended = true;
+            emit AuctionEnded( highestBidder, highestBid);
             revert("The auction is already ended");
         }
         if (msg.value <= highestBid) {
@@ -55,6 +58,12 @@ contract Auctions {
         }
         return true;
     }
+    function callRewardWinner() public payable {
+        if(block.timestamp > auctionEndTime) {
+            s.rewardWinner(payable(highestBidder));
+        emit AuctionEnded(highestBidder, highestBid);
+        }
+    }
 
     function endAuction() public {
         if (block.timestamp < auctionEndTime) {
@@ -65,7 +74,6 @@ contract Auctions {
         }
 
         ended = true;
-        s.rewardWinner(payable(highestBidder));
-        emit AuctionEnded(highestBidder, highestBid);
+        
     }
 }
